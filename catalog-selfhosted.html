@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog</title>
+<style>
+  :root{
+    --ink: #1B2430;
+    --paper: #EFEDE3;
+    --paper-card: #FBFAF5;
+    --brass: #C98A2B;
+    --brass-dark: #9C6A1E;
+    --brass-tint: rgba(201,138,43,0.14);
+    --teal: #2F6F5E;
+    --muted: #6B7280;
+    --line: #D8D3C4;
+    --danger: #B24B3C;
+    --radius-card: 2px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .back-btn:hover { color: var(--ink); }
+  .back-btn svg { width: 14px; height: 14px; }
+
+  h1 {
+    font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    font-weight: 600;
+    font-size: 34px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .tagline {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .count-badge {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-top: 6px;
+  }
+
+  .status-line {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    min-height: 16px;
+  }
+  .status-line.error { color: var(--danger); }
+
+  button.primary {
+    background: var(--ink);
+    color: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  button.primary:hover { background: var(--teal); border-color: var(--teal); }
+
+  button.ghost {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 9px 16px;
+    font-size: 13px;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ===== Auth screen ===== */
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .auth-card {
+    background: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-card);
+    padding: 28px;
+    width: 100%;
+    max-width: 340px;
+  }
+  .auth-card .field input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+  }
+  .auth-card .field input:focus { outline: none; border-color: var(--teal); }
+  .auth-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--teal);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 12.5px;
+    font-family: inherit;
+  }
+  .link-btn:hover { color: var(--brass-dark); }
+
+  /* ===== Catalogs home screen ===== */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+  }
+
+  .catalog-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.12s, transform 0.12s;
+    display: flex;
+    flex-direction: column;
+  }
+  .catalog-card:hover { border-color: var(--brass); }
+
+  .catalog-cover {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    background: var(--brass-tint);
+  }
+
+  .catalog-cover-placeholder {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--brass-tint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .catalog-cover-placeholder span {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 46px;
+    font-weight: 600;
+    color: var(--brass-dark);
+  }
+
+  .catalog-card-body {
+    padding: 12px 14px 14px;
+  }
+
+  .catalog-card-name {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    padding-right: 20px;
+  }
+
+  .catalog-card-count {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .catalog-card-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .catalog-card:hover .catalog-card-actions { opacity: 1; }
+
+  .icon-btn {
+    background: rgba(251,250,245,0.92);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    padding: 5px;
+    color: var(--muted);
+    border-radius: 3px;
+    display: flex;
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .icon-btn.delete:hover { color: var(--danger); border-color: var(--danger); }
+  .icon-btn.delete.armed {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+  }
+  .icon-btn svg { width: 14px; height: 14px; }
+
+  .catalog-card-new {
+    background: transparent;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    cursor: pointer;
+    color: var(--muted);
+    gap: 8px;
+  }
+  .catalog-card-new:hover { border-color: var(--brass); color: var(--ink); }
+  .catalog-card-new svg { width: 26px; height: 26px; }
+  .catalog-card-new span { font-size: 13.5px; font-weight: 600; }
+
+  /* ===== Catalog editor modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(27,36,48,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-card);
+    padding: 22px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .modal h2 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18px;
+    margin: 0 0 16px;
+  }
+
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .field input[type="text"], .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+  }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--teal); }
+  .field textarea { resize: vertical; min-height: 54px; }
+
+  .image-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .image-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-card);
+    object-fit: cover;
+    border: 1px solid var(--line);
+    background: var(--brass-tint);
+    flex-shrink: 0;
+  }
+  .image-preview-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-card);
+    border: 1px dashed var(--line);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 10px;
+    text-align: center;
+    background: var(--paper);
+  }
+  .image-upload-controls { display: flex; flex-direction: column; gap: 6px; }
+  .image-upload-controls label.upload-btn {
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    color: var(--ink);
+    background: #fff;
+    display: inline-block;
+    width: fit-content;
+  }
+  .image-upload-controls label.upload-btn:hover { border-color: var(--brass); }
+  .image-upload-controls input[type="file"] { display: none; }
+  .remove-image-btn {
+    font-size: 11.5px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    font-family: inherit;
+  }
+  .remove-image-btn:hover { color: var(--danger); }
+
+  .panel-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  /* ===== Catalog detail view ===== */
+  .search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .search-box { flex: 1; position: relative; }
+  .search-box input {
+    width: 100%;
+    padding: 13px 16px 13px 40px;
+    font-size: 15px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-card);
+    color: var(--ink);
+    border-radius: var(--radius-card);
+    font-family: inherit;
+  }
+  .search-box input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(47,111,94,0.12); }
+  .search-box svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); }
+
+  .filter-btn {
+    position: relative;
+    background: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--brass); }
+  .filter-btn.has-active { border-color: var(--brass); background: rgba(201,138,43,0.08); }
+  .filter-btn svg { width: 15px; height: 15px; }
+
+  .filter-count {
+    background: var(--brass);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 20px;
+  }
+
+  .filter-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    width: 260px;
+    max-height: 320px;
+    overflow-y: auto;
+    box-shadow: 0 6px 18px rgba(27,36,48,0.15);
+    z-index: 20;
+    display: none;
+  }
+  .filter-dropdown.open { display: block; }
+
+  .filter-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .filter-dropdown-header span { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .filter-dropdown-header button {
+    font-size: 11.5px;
+    color: var(--teal);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .filter-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .tag-chip {
+    font-size: 12.5px;
+    padding: 5px 11px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--muted);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    font-family: inherit;
+  }
+  .tag-chip:hover { border-color: var(--brass); color: var(--ink); }
+  .tag-chip.active { background: var(--brass); border-color: var(--brass); color: #FFFFFF; font-weight: 600; }
+
+  .filter-empty { font-size: 12.5px; color: var(--muted); font-style: italic; }
+
+  .active-filter-summary {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .active-filter-summary .tag-chip.active { font-size: 11.5px; padding: 3px 9px; }
+
+  .add-panel {
+    background: var(--paper-card);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    margin-bottom: 28px;
+    display: none;
+  }
+  .add-panel.open { display: block; }
+  .add-panel h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 18px; margin: 0 0 16px; }
+
+  .tag-suggest-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag-suggest {
+    font-size: 11.5px;
+    padding: 3px 9px;
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+  }
+  .tag-suggest:hover { border-color: var(--brass); color: var(--ink); }
+
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--teal);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+  }
+  .link-btn:hover { color: var(--brass-dark); }
+
+  .tag-select-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    max-height: 130px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .tag-select-empty {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .tag-search-input {
+    width: 100%;
+    padding: 8px 11px;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .tag-search-input:focus { outline: none; border-color: var(--teal); }
+  .tag-select-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .tag-select-selected:empty { display: none; margin-bottom: 0; }
+  .tag-select-selected .tag-chip.active { font-size: 11.5px; padding: 3px 9px; }
+  .tag-select-no-match {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+    padding: 4px 2px;
+  }
+
+  .new-tag-row { display: flex; gap: 8px; }
+  .new-tag-row input { flex: 1; }
+  .new-tag-row button.primary { padding: 0 14px; font-size: 13px; }
+
+  .tag-manager-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .tag-manager-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    font-size: 13px;
+  }
+  .tag-manager-row .remove-tag-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+  }
+  .tag-manager-row .remove-tag-btn:hover { color: var(--danger); }
+  .tag-manager-row .remove-tag-btn svg { width: 14px; height: 14px; }
+  .tag-manager-empty { font-size: 12.5px; color: var(--muted); font-style: italic; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+
+  .item-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--brass);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .item-name {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    padding-right: 48px;
+  }
+  .item-desc { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .item-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .item-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: rgba(201,138,43,0.12);
+    color: var(--brass-dark);
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .item-link-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .item-link {
+    font-size: 12.5px;
+    color: var(--teal);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 170px;
+  }
+  .item-link:hover { color: var(--brass-dark); }
+  .copy-link-btn {
+    background: none;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    padding: 3px;
+    color: var(--muted);
+    border-radius: 3px;
+    display: flex;
+    flex-shrink: 0;
+  }
+  .copy-link-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .copy-link-btn.copied { color: var(--teal); border-color: var(--teal); }
+  .copy-link-btn svg { width: 13px; height: 13px; }
+
+  .item-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .big { font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 26px; }
+    .search-row { flex-direction: column; }
+    button.primary { padding: 12px; }
+    .filter-dropdown { right: auto; left: 0; width: calc(100vw - 80px); max-width: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Auth screen ===== -->
+<div class="auth-wrap" id="authScreen">
+  <div class="auth-card">
+    <h1 style="font-size:26px; margin-bottom:4px;">Catalog</h1>
+    <div class="tagline" style="margin-bottom:20px;">Sign in to reach your data from any device.</div>
+    <div class="status-line" id="authStatus"></div>
+    <div class="field">
+      <label for="authEmail">Email</label>
+      <input type="email" id="authEmail" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="authPassword">Password</label>
+      <input type="password" id="authPassword" autocomplete="current-password">
+    </div>
+    <button class="primary" id="authSubmitBtn" style="width:100%; padding:12px 0; margin-bottom:10px;">Sign in</button>
+    <div class="auth-links">
+      <button class="link-btn" id="authToggleModeBtn" type="button">Need an account? Create one</button>
+      <button class="link-btn" id="authResetBtn" type="button">Forgot password?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== App (shown once signed in) ===== -->
+<div id="appScreen" style="display:none;">
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <button class="back-btn" id="backBtn" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        All catalogs
+      </button>
+      <h1 id="pageTitle">Catalogs</h1>
+      <div class="tagline" id="pageTagline">Every collection, tagged and searchable.</div>
+    </div>
+    <div class="count-badge" id="countBadge"></div>
+    <button class="ghost" id="signOutBtn" style="margin-top:6px;">Sign out</button>
+  </header>
+
+  <div class="status-line" id="statusLine"></div>
+
+  <!-- ===== Catalogs home view ===== -->
+  <div id="catalogsView">
+    <div class="catalog-grid" id="catalogGrid"></div>
+  </div>
+
+  <!-- ===== Catalog detail view ===== -->
+  <div id="detailView" style="display:none;">
+    <div class="search-row">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search by name or tag…" autocomplete="off">
+      </div>
+      <button class="filter-btn" id="filterBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        Filter
+        <span class="filter-count" id="filterCount" style="display:none;"></span>
+      </button>
+      <div class="filter-dropdown" id="filterDropdown">
+        <div class="filter-dropdown-header">
+          <span>Filter by tag</span>
+          <button id="clearFiltersBtn">clear</button>
+        </div>
+        <div class="filter-tag-list" id="filterTagList"></div>
+      </div>
+      <button class="primary" id="toggleAddBtn">+ New item</button>
+      <button class="ghost" id="manageTagsBtn">Manage tags</button>
+    </div>
+
+    <div class="active-filter-summary" id="activeFilterSummary"></div>
+
+    <div class="add-panel" id="addPanel">
+      <h2>New item</h2>
+      <div class="field">
+        <label for="itemName">Name</label>
+        <input type="text" id="itemName" placeholder="e.g. Cordless drill">
+      </div>
+      <div class="field">
+        <label for="itemDesc">Description (optional)</label>
+        <textarea id="itemDesc" placeholder="e.g. 18V, in the garage cabinet, top shelf"></textarea>
+      </div>
+      <div class="field">
+        <label>Tags</label>
+        <div class="tag-select-selected" id="itemTagSelectedSummary"></div>
+        <input type="text" id="itemTagSearchInput" class="tag-search-input" placeholder="Search tags…" autocomplete="off">
+        <div class="tag-select-list" id="itemTagSelectList"></div>
+        <div class="tag-select-empty" id="itemTagSelectEmpty" style="display:none;">
+          This catalog has no tags yet.
+          <button type="button" class="link-btn" id="createTagFromItemBtn">Create one</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="itemLink">Link (optional)</label>
+        <input type="text" id="itemLink" placeholder="e.g. https://manufacturer.com/manual">
+      </div>
+      <div class="panel-actions">
+        <button class="ghost" id="cancelAddBtn">Cancel</button>
+        <button class="primary" id="saveItemBtn">Save item</button>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+</div>
+
+<!-- ===== Catalog create/edit modal ===== -->
+<div class="modal-overlay" id="catalogModalOverlay">
+  <div class="modal">
+    <h2 id="catalogModalTitle">New catalog</h2>
+    <div class="field">
+      <label for="catalogNameInput">Name</label>
+      <input type="text" id="catalogNameInput" placeholder="e.g. Garage, Kitchen, Books">
+    </div>
+    <div class="field">
+      <label>Cover image (optional)</label>
+      <div class="image-upload-row">
+        <div id="catalogImagePreviewWrap"></div>
+        <div class="image-upload-controls">
+          <label class="upload-btn" for="catalogImageInput">Choose image</label>
+          <input type="file" id="catalogImageInput" accept="image/*">
+          <button class="remove-image-btn" id="removeImageBtn" style="display:none;">Remove image</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel-actions">
+      <button class="ghost" id="cancelCatalogModalBtn">Cancel</button>
+      <button class="primary" id="saveCatalogBtn">Save catalog</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Tag manager modal ===== -->
+<div class="modal-overlay" id="tagModalOverlay">
+  <div class="modal">
+    <h2>Manage tags</h2>
+    <div class="field">
+      <label for="newTagInput">New tag</label>
+      <div class="new-tag-row">
+        <input type="text" id="newTagInput" placeholder="e.g. fragile">
+        <button class="primary" id="addTagBtn">Add</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Existing tags</label>
+      <div class="tag-manager-list" id="tagManagerList"></div>
+    </div>
+    <div class="panel-actions">
+      <button class="ghost" id="closeTagModalBtn">Done</button>
+    </div>
+  </div>
+</div>
+</div>
+<!-- ^ closes #appScreen -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut, sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, where, getDocs, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+// ===== Paste your own Firebase project's config here (from Project settings > your web app) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAnYXz50sXC4-VYDCHDxuxxvXxlS3Xju74",
+  authDomain: "home-catalogs.firebaseapp.com",
+  projectId: "home-catalogs",
+  storageBucket: "home-catalogs.firebasestorage.app",
+  messagingSenderId: "739086450121",
+  appId: "1:739086450121:web:3a1151e866e5639247fc18"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+(function(){
+  let catalogs = [];      // [{id, name, image, tags: [string]}]
+  let items = [];         // [{id, catalogId, name, description, tags, link}]
+  let view = 'catalogs';  // 'catalogs' | 'detail'
+  let activeCatalogId = null;
+  let activeTags = new Set();
+  let searchQuery = '';
+  let editingItemId = null;
+  let editingCatalogId = null;
+  let pendingCatalogImage = null; // base64 data url or null
+  let selectedItemTags = new Set(); // tags chosen for the item currently being added/edited
+  let itemTagSearchQuery = '';
+
+  let currentUid = null;
+  let catalogsCol = null;
+  let itemsCol = null;
+  let unsubCatalogs = null;
+  let unsubItems = null;
+  let authMode = 'signin'; // 'signin' | 'signup'
+
+  const authScreen = document.getElementById('authScreen');
+  const appScreen = document.getElementById('appScreen');
+  const authStatus = document.getElementById('authStatus');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authToggleModeBtn = document.getElementById('authToggleModeBtn');
+  const authResetBtn = document.getElementById('authResetBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
+
+  const pageTitle = document.getElementById('pageTitle');
+  const pageTagline = document.getElementById('pageTagline');
+  const backBtn = document.getElementById('backBtn');
+  const countBadge = document.getElementById('countBadge');
+  const statusLine = document.getElementById('statusLine');
+
+  const catalogsView = document.getElementById('catalogsView');
+  const catalogGrid = document.getElementById('catalogGrid');
+  const detailView = document.getElementById('detailView');
+
+  const catalogModalOverlay = document.getElementById('catalogModalOverlay');
+  const catalogModalTitle = document.getElementById('catalogModalTitle');
+  const catalogNameInput = document.getElementById('catalogNameInput');
+  const catalogImageInput = document.getElementById('catalogImageInput');
+  const catalogImagePreviewWrap = document.getElementById('catalogImagePreviewWrap');
+  const removeImageBtn = document.getElementById('removeImageBtn');
+  const cancelCatalogModalBtn = document.getElementById('cancelCatalogModalBtn');
+  const saveCatalogBtn = document.getElementById('saveCatalogBtn');
+
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('searchInput');
+  const addPanel = document.getElementById('addPanel');
+  const toggleAddBtn = document.getElementById('toggleAddBtn');
+  const cancelAddBtn = document.getElementById('cancelAddBtn');
+  const saveItemBtn = document.getElementById('saveItemBtn');
+  const itemName = document.getElementById('itemName');
+  const itemDesc = document.getElementById('itemDesc');
+  const itemTagSelectList = document.getElementById('itemTagSelectList');
+  const itemTagSelectEmpty = document.getElementById('itemTagSelectEmpty');
+  const itemTagSelectedSummary = document.getElementById('itemTagSelectedSummary');
+  const itemTagSearchInput = document.getElementById('itemTagSearchInput');
+  const createTagFromItemBtn = document.getElementById('createTagFromItemBtn');
+  const itemLink = document.getElementById('itemLink');
+  const manageTagsBtn = document.getElementById('manageTagsBtn');
+  const tagModalOverlay = document.getElementById('tagModalOverlay');
+  const newTagInput = document.getElementById('newTagInput');
+  const addTagBtn = document.getElementById('addTagBtn');
+  const tagManagerList = document.getElementById('tagManagerList');
+  const closeTagModalBtn = document.getElementById('closeTagModalBtn');
+  const filterBtn = document.getElementById('filterBtn');
+  const filterDropdown = document.getElementById('filterDropdown');
+  const filterTagList = document.getElementById('filterTagList');
+  const filterCount = document.getElementById('filterCount');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+  const activeFilterSummary = document.getElementById('activeFilterSummary');
+
+  function setStatus(msg, isError){
+    statusLine.textContent = msg || '';
+    statusLine.className = 'status-line' + (isError ? ' error' : '');
+  }
+
+  function uid(prefix){
+    return (prefix||'id') + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Sandboxed artifact environments block window.confirm(), so deletes use
+  // a click-once-to-arm, click-again-to-confirm pattern instead of a popup.
+  function armDeleteButton(btn, defaultTitle, onConfirm){
+    btn.title = defaultTitle;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn.classList.contains('armed')){
+        clearTimeout(btn._armTimeout);
+        onConfirm();
+      } else {
+        btn.classList.add('armed');
+        btn.title = 'Click again to confirm delete';
+        btn._armTimeout = setTimeout(() => {
+          btn.classList.remove('armed');
+          btn.title = defaultTitle;
+        }, 3000);
+      }
+    });
+  }
+
+  function itemsForCatalog(catalogId){
+    return items.filter(it => it.catalogId === catalogId);
+  }
+
+  function getActiveCatalog(){
+    return catalogs.find(c => c.id === activeCatalogId) || null;
+  }
+
+  function allTagsInCatalog(){
+    const cat = getActiveCatalog();
+    const set = new Set(cat && cat.tags ? cat.tags : []);
+    // Backfill from any items that already carry tags not yet in the catalog's tag list
+    // (covers data created before tags were managed centrally).
+    itemsForCatalog(activeCatalogId).forEach(it => (it.tags||[]).forEach(t => set.add(t)));
+    return Array.from(set).sort((a,b)=>a.localeCompare(b));
+  }
+
+  function startListeners(uid){
+    currentUid = uid;
+    catalogsCol = collection(db, 'users', uid, 'catalogs');
+    itemsCol = collection(db, 'users', uid, 'items');
+
+    unsubCatalogs = onSnapshot(catalogsCol, (snap) => {
+      catalogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }, () => setStatus('Could not load catalogs — check your connection.', true));
+
+    unsubItems = onSnapshot(itemsCol, (snap) => {
+      items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }, () => setStatus('Could not load items — check your connection.', true));
+  }
+
+  function stopListeners(){
+    if (unsubCatalogs) unsubCatalogs();
+    if (unsubItems) unsubItems();
+    unsubCatalogs = null;
+    unsubItems = null;
+    catalogsCol = null;
+    itemsCol = null;
+    currentUid = null;
+    catalogs = [];
+    items = [];
+  }
+
+  // Resize/compress uploaded images client-side so they stay well under
+  // Firestore's 1MiB-per-document limit.
+  function fileToResizedDataUrl(file, maxDim, quality){
+    maxDim = maxDim || 700;
+    quality = quality || 0.75;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height){ if (width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; } }
+          else { if (height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; } }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function authErrorMessage(err){
+    const code = err && err.code ? err.code : '';
+    if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Incorrect email or password.';
+    if (code.includes('email-already-in-use')) return 'An account with that email already exists — try signing in.';
+    if (code.includes('weak-password')) return 'Password should be at least 6 characters.';
+    if (code.includes('invalid-email')) return 'That email address looks invalid.';
+    return 'Something went wrong — please try again.';
+  }
+
+  function setAuthMode(mode){
+    authMode = mode;
+    authSubmitBtn.textContent = mode === 'signup' ? 'Create account' : 'Sign in';
+    authToggleModeBtn.textContent = mode === 'signup' ? 'Already have an account? Sign in' : 'Need an account? Create one';
+    authStatus.textContent = '';
+    authStatus.className = 'status-line';
+  }
+
+  async function handleAuthSubmit(){
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password){
+      authStatus.textContent = 'Enter both an email and a password.';
+      authStatus.className = 'status-line error';
+      return;
+    }
+    authStatus.textContent = 'Working…';
+    authStatus.className = 'status-line';
+    try {
+      if (authMode === 'signup') await createUserWithEmailAndPassword(auth, email, password);
+      else await signInWithEmailAndPassword(auth, email, password);
+      authStatus.textContent = '';
+    } catch(err){
+      authStatus.textContent = authErrorMessage(err);
+      authStatus.className = 'status-line error';
+    }
+  }
+
+  async function handlePasswordReset(){
+    const email = authEmail.value.trim();
+    if (!email){
+      authStatus.textContent = 'Enter your email above first, then click "Forgot password?"';
+      authStatus.className = 'status-line error';
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      authStatus.textContent = 'Password reset email sent — check your inbox.';
+      authStatus.className = 'status-line';
+    } catch(err){
+      authStatus.textContent = authErrorMessage(err);
+      authStatus.className = 'status-line error';
+    }
+  }
+
+  authSubmitBtn.addEventListener('click', handleAuthSubmit);
+  authPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuthSubmit(); });
+  authToggleModeBtn.addEventListener('click', () => setAuthMode(authMode === 'signup' ? 'signin' : 'signup'));
+  authResetBtn.addEventListener('click', handlePasswordReset);
+  signOutBtn.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    if (user){
+      authScreen.style.display = 'none';
+      appScreen.style.display = '';
+      view = 'catalogs';
+      activeCatalogId = null;
+      startListeners(user.uid);
+    } else {
+      appScreen.style.display = 'none';
+      authScreen.style.display = 'flex';
+      stopListeners();
+      authEmail.value = '';
+      authPassword.value = '';
+      setAuthMode('signin');
+    }
+  });
+
+  /* ===== Navigation ===== */
+  function goToCatalogs(){
+    view = 'catalogs';
+    activeCatalogId = null;
+    activeTags.clear();
+    searchQuery = '';
+    searchInput.value = '';
+    closeAddPanel();
+    renderAll();
+  }
+
+  function openCatalog(id){
+    view = 'detail';
+    activeCatalogId = id;
+    activeTags.clear();
+    searchQuery = '';
+    searchInput.value = '';
+    renderAll();
+  }
+
+  /* ===== Catalog modal (create / edit) ===== */
+  function openCatalogModal(catalog){
+    editingCatalogId = catalog ? catalog.id : null;
+    catalogModalTitle.textContent = catalog ? 'Edit catalog' : 'New catalog';
+    catalogNameInput.value = catalog ? catalog.name : '';
+    pendingCatalogImage = catalog ? (catalog.image || null) : null;
+    renderCatalogImagePreview();
+    catalogModalOverlay.classList.add('open');
+    catalogNameInput.focus();
+  }
+
+  function closeCatalogModal(){
+    catalogModalOverlay.classList.remove('open');
+    editingCatalogId = null;
+    catalogNameInput.value = '';
+    pendingCatalogImage = null;
+    catalogImageInput.value = '';
+  }
+
+  function renderCatalogImagePreview(){
+    catalogImagePreviewWrap.innerHTML = '';
+    if (pendingCatalogImage){
+      const img = document.createElement('img');
+      img.className = 'image-preview';
+      img.src = pendingCatalogImage;
+      catalogImagePreviewWrap.appendChild(img);
+      removeImageBtn.style.display = 'inline-block';
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'image-preview-placeholder';
+      ph.textContent = 'No image';
+      catalogImagePreviewWrap.appendChild(ph);
+      removeImageBtn.style.display = 'none';
+    }
+  }
+
+  catalogImageInput.addEventListener('change', async () => {
+    const file = catalogImageInput.files && catalogImageInput.files[0];
+    if (!file) return;
+    try {
+      pendingCatalogImage = await fileToResizedDataUrl(file, 700, 0.75);
+      renderCatalogImagePreview();
+    } catch(e){
+      setStatus('Could not read that image — try a different file.', true);
+    }
+  });
+
+  removeImageBtn.addEventListener('click', () => {
+    pendingCatalogImage = null;
+    catalogImageInput.value = '';
+    renderCatalogImagePreview();
+  });
+
+  async function handleSaveCatalog(){
+    const name = catalogNameInput.value.trim();
+    if (!name){
+      catalogNameInput.focus();
+      return;
+    }
+    setStatus('Saving…');
+    try {
+      if (editingCatalogId){
+        await updateDoc(doc(catalogsCol, editingCatalogId), { name, image: pendingCatalogImage || null });
+      } else {
+        await addDoc(catalogsCol, { name, image: pendingCatalogImage || null, tags: [] });
+      }
+      setStatus('');
+    } catch(e){
+      setStatus('Could not save catalog — check your connection.', true);
+    }
+    closeCatalogModal();
+  }
+
+  async function handleDeleteCatalog(id){
+    setStatus('Deleting…');
+    try {
+      const q = query(itemsCol, where('catalogId', '==', id));
+      const snap = await getDocs(q);
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+      await deleteDoc(doc(catalogsCol, id));
+      setStatus('');
+    } catch(e){
+      setStatus('Could not delete catalog — check your connection.', true);
+    }
+  }
+
+  cancelCatalogModalBtn.addEventListener('click', closeCatalogModal);
+  saveCatalogBtn.addEventListener('click', handleSaveCatalog);
+  catalogNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveCatalog(); });
+  catalogModalOverlay.addEventListener('click', (e) => { if (e.target === catalogModalOverlay) closeCatalogModal(); });
+
+  /* ===== Tag manager modal ===== */
+  function openTagManager(){
+    newTagInput.value = '';
+    renderTagManagerList();
+    tagModalOverlay.classList.add('open');
+    newTagInput.focus();
+  }
+
+  function closeTagManager(){
+    tagModalOverlay.classList.remove('open');
+  }
+
+  function renderTagManagerList(){
+    const cat = getActiveCatalog();
+    const tags = allTagsInCatalog();
+    tagManagerList.innerHTML = '';
+    if (tags.length === 0){
+      tagManagerList.innerHTML = '<span class="tag-manager-empty">No tags yet — add one above.</span>';
+      return;
+    }
+    tags.forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'tag-manager-row';
+      row.innerHTML = `
+        <span>${escapeHtml(t)}</span>
+        <button class="remove-tag-btn" title="Remove tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      `;
+      row.querySelector('.remove-tag-btn').className += ' icon-btn delete';
+      armDeleteButton(row.querySelector('.remove-tag-btn'), 'Remove tag', () => handleRemoveTag(t));
+      tagManagerList.appendChild(row);
+    });
+  }
+
+  async function handleAddTag(){
+    const name = newTagInput.value.trim().toLowerCase();
+    if (!name) return;
+    const cat = getActiveCatalog();
+    if (!cat) return;
+    if ((cat.tags || []).includes(name)){
+      newTagInput.value = '';
+      return;
+    }
+    newTagInput.value = '';
+    setStatus('Saving…');
+    try {
+      await updateDoc(doc(catalogsCol, activeCatalogId), { tags: arrayUnion(name) });
+      setStatus('');
+    } catch(e){
+      setStatus('Could not save tag — check your connection.', true);
+    }
+    renderTagManagerList();
+  }
+
+  async function handleRemoveTag(name){
+    const cat = getActiveCatalog();
+    if (!cat) return;
+    activeTags.delete(name);
+    selectedItemTags.delete(name);
+    setStatus('Saving…');
+    try {
+      await updateDoc(doc(catalogsCol, activeCatalogId), { tags: arrayRemove(name) });
+      const q = query(itemsCol, where('catalogId', '==', activeCatalogId), where('tags', 'array-contains', name));
+      const snap = await getDocs(q);
+      await Promise.all(snap.docs.map(d => updateDoc(d.ref, { tags: arrayRemove(name) })));
+      setStatus('');
+    } catch(e){
+      setStatus('Could not remove tag — check your connection.', true);
+    }
+    renderTagManagerList();
+  }
+
+  manageTagsBtn.addEventListener('click', openTagManager);
+  closeTagModalBtn.addEventListener('click', closeTagManager);
+  addTagBtn.addEventListener('click', handleAddTag);
+  newTagInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAddTag(); });
+  tagModalOverlay.addEventListener('click', (e) => { if (e.target === tagModalOverlay) closeTagManager(); });
+  createTagFromItemBtn.addEventListener('click', openTagManager);
+
+  /* ===== Catalogs home render ===== */
+  function renderCatalogsView(){
+    catalogGrid.innerHTML = '';
+
+    catalogs.forEach(cat => {
+      const count = itemsForCatalog(cat.id).length;
+      const card = document.createElement('div');
+      card.className = 'catalog-card';
+
+      const coverHtml = cat.image
+        ? `<img class="catalog-cover" src="${cat.image}" alt="">`
+        : `<div class="catalog-cover-placeholder"><span>${escapeHtml((cat.name||'?').charAt(0).toUpperCase())}</span></div>`;
+
+      card.innerHTML = `
+        <div class="catalog-card-actions">
+          <button class="icon-btn edit" title="Edit catalog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-btn delete" title="Delete catalog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+        ${coverHtml}
+        <div class="catalog-card-body">
+          <div class="catalog-card-name">${escapeHtml(cat.name)}</div>
+          <div class="catalog-card-count">${count} item${count===1?'':'s'}</div>
+        </div>
+      `;
+      card.querySelector('.catalog-cover, .catalog-cover-placeholder')?.addEventListener('click', () => openCatalog(cat.id));
+      card.querySelector('.catalog-card-body').addEventListener('click', () => openCatalog(cat.id));
+      card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openCatalogModal(cat); });
+      armDeleteButton(card.querySelector('.delete'), 'Delete catalog', () => handleDeleteCatalog(cat.id));
+      catalogGrid.appendChild(card);
+    });
+
+    const newTile = document.createElement('div');
+    newTile.className = 'catalog-card-new';
+    newTile.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>New catalog</span>
+    `;
+    newTile.addEventListener('click', () => openCatalogModal(null));
+    catalogGrid.appendChild(newTile);
+
+    if (catalogs.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.style.gridColumn = '1 / -1';
+      empty.innerHTML = `<div class="big">No catalogs yet</div><div>Start one — a garage, a bookshelf, a pantry — whatever you're organizing.</div>`;
+      catalogGrid.insertBefore(empty, newTile);
+    }
+
+    countBadge.textContent = catalogs.length ? `${catalogs.length} catalog${catalogs.length===1?'':'s'}` : '';
+  }
+
+  /* ===== Item panel ===== */
+  function openAddPanel(editItem){
+    editingItemId = editItem ? editItem.id : null;
+    document.querySelector('#addPanel h2').textContent = editItem ? 'Edit item' : 'New item';
+    itemName.value = editItem ? editItem.name : '';
+    itemDesc.value = editItem ? (editItem.description||'') : '';
+    itemLink.value = editItem ? (editItem.link||'') : '';
+    selectedItemTags = new Set(editItem ? (editItem.tags||[]) : []);
+    itemTagSearchQuery = '';
+    itemTagSearchInput.value = '';
+    renderItemTagSelect();
+    addPanel.classList.add('open');
+    itemName.focus();
+  }
+
+  function closeAddPanel(){
+    addPanel.classList.remove('open');
+    editingItemId = null;
+    itemName.value = '';
+    itemDesc.value = '';
+    itemLink.value = '';
+    selectedItemTags = new Set();
+    itemTagSearchQuery = '';
+    itemTagSearchInput.value = '';
+  }
+
+  function normalizeLink(raw){
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return 'https://' + trimmed;
+  }
+
+  function renderItemTagSelect(){
+    const allTags = allTagsInCatalog();
+
+    // Selected-tags summary (always visible regardless of search, so picks aren't lost from view)
+    itemTagSelectedSummary.innerHTML = '';
+    Array.from(selectedItemTags).sort((a,b)=>a.localeCompare(b)).forEach(t => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'tag-chip active';
+      chip.textContent = t + ' ✕';
+      chip.addEventListener('click', () => {
+        selectedItemTags.delete(t);
+        renderItemTagSelect();
+      });
+      itemTagSelectedSummary.appendChild(chip);
+    });
+
+    if (allTags.length === 0){
+      itemTagSearchInput.style.display = 'none';
+      itemTagSelectList.style.display = 'none';
+      itemTagSelectEmpty.style.display = 'block';
+      return;
+    }
+    itemTagSearchInput.style.display = 'block';
+    itemTagSelectList.style.display = 'flex';
+    itemTagSelectEmpty.style.display = 'none';
+
+    const q = itemTagSearchQuery.trim().toLowerCase();
+    const visibleTags = q ? allTags.filter(t => t.toLowerCase().includes(q)) : allTags;
+
+    itemTagSelectList.innerHTML = '';
+    if (visibleTags.length === 0){
+      itemTagSelectList.innerHTML = '<span class="tag-select-no-match">No tags match your search.</span>';
+      return;
+    }
+    visibleTags.forEach(t => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'tag-chip' + (selectedItemTags.has(t) ? ' active' : '');
+      chip.textContent = t;
+      chip.addEventListener('click', () => {
+        if (selectedItemTags.has(t)) selectedItemTags.delete(t);
+        else selectedItemTags.add(t);
+        renderItemTagSelect();
+      });
+      itemTagSelectList.appendChild(chip);
+    });
+  }
+
+  async function handleSaveItem(){
+    const name = itemName.value.trim();
+    if (!name){
+      setStatus('Give the item a name first.', true);
+      itemName.focus();
+      return;
+    }
+    const uniqueTags = Array.from(selectedItemTags);
+    const link = normalizeLink(itemLink.value);
+
+    setStatus('Saving…');
+    try {
+      if (editingItemId){
+        await updateDoc(doc(itemsCol, editingItemId), { name, description: itemDesc.value.trim(), tags: uniqueTags, link });
+      } else {
+        await addDoc(itemsCol, {
+          catalogId: activeCatalogId,
+          name,
+          description: itemDesc.value.trim(),
+          tags: uniqueTags,
+          link,
+          createdAt: Date.now()
+        });
+      }
+      setStatus('');
+    } catch(e){
+      setStatus('Could not save item — check your connection.', true);
+    }
+    closeAddPanel();
+  }
+
+  async function handleDeleteItem(id){
+    setStatus('Deleting…');
+    try {
+      await deleteDoc(doc(itemsCol, id));
+      setStatus('');
+    } catch(e){
+      setStatus('Could not delete item — check your connection.', true);
+    }
+  }
+
+  function toggleTagFilter(tag){
+    if (activeTags.has(tag)) activeTags.delete(tag);
+    else activeTags.add(tag);
+    renderAll();
+  }
+
+  function matchesFilters(item){
+    const q = searchQuery.trim().toLowerCase();
+    if (q){
+      const inName = item.name.toLowerCase().includes(q);
+      const inTags = (item.tags||[]).some(t => t.toLowerCase().includes(q));
+      const inDesc = (item.description||'').toLowerCase().includes(q);
+      if (!inName && !inTags && !inDesc) return false;
+    }
+    if (activeTags.size > 0){
+      const itemTagSet = new Set(item.tags||[]);
+      for (const t of activeTags){ if (!itemTagSet.has(t)) return false; }
+    }
+    return true;
+  }
+
+  function renderFilterDropdown(){
+    const tags = allTagsInCatalog();
+    filterTagList.innerHTML = '';
+    if (tags.length === 0){
+      filterTagList.innerHTML = '<span class="filter-empty">No tags in this catalog yet.</span>';
+    } else {
+      tags.forEach(t => {
+        const chip = document.createElement('button');
+        chip.className = 'tag-chip' + (activeTags.has(t) ? ' active' : '');
+        chip.textContent = t;
+        chip.addEventListener('click', () => toggleTagFilter(t));
+        filterTagList.appendChild(chip);
+      });
+    }
+
+    if (activeTags.size > 0){
+      filterBtn.classList.add('has-active');
+      filterCount.style.display = 'inline-block';
+      filterCount.textContent = activeTags.size;
+    } else {
+      filterBtn.classList.remove('has-active');
+      filterCount.style.display = 'none';
+    }
+
+    activeFilterSummary.innerHTML = '';
+    if (activeTags.size > 0){
+      const label = document.createElement('span');
+      label.textContent = 'Filtering by:';
+      activeFilterSummary.appendChild(label);
+      activeTags.forEach(t => {
+        const chip = document.createElement('button');
+        chip.className = 'tag-chip active';
+        chip.textContent = t + ' ✕';
+        chip.addEventListener('click', () => toggleTagFilter(t));
+        activeFilterSummary.appendChild(chip);
+      });
+    }
+  }
+
+  function renderDetailView(){
+    const catalog = catalogs.find(c => c.id === activeCatalogId);
+    if (!catalog) { goToCatalogs(); return; }
+
+    renderFilterDropdown();
+
+    const catItems = itemsForCatalog(activeCatalogId);
+    const visible = catItems.filter(matchesFilters);
+    countBadge.textContent = catItems.length === 0 ? '' :
+      (visible.length === catItems.length ? `${catItems.length} item${catItems.length===1?'':'s'}` : `${visible.length} of ${catItems.length} items`);
+
+    grid.innerHTML = '';
+    if (catItems.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="big">Nothing catalogued yet</div>
+        <div>Add your first item to this catalog.</div>
+      </div>`;
+      return;
+    }
+    if (visible.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="big">No matches</div>
+        <div>Try a different search term or clear the tag filters.</div>
+      </div>`;
+      return;
+    }
+
+    visible.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      const tagsHtml = (item.tags||[]).map(t => `<span class="item-tag">${escapeHtml(t)}</span>`).join('');
+      const linkHtml = item.link ? `
+        <div class="item-link-row">
+          <a class="item-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(item.link)}">${escapeHtml(item.link.replace(/^https?:\/\//i,''))}</a>
+          <button class="copy-link-btn" title="Copy link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>` : '';
+      card.innerHTML = `
+        <div class="item-actions">
+          <button class="icon-btn edit" title="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-btn delete" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+        <div class="item-name">${escapeHtml(item.name)}</div>
+        ${item.description ? `<div class="item-desc">${escapeHtml(item.description)}</div>` : ''}
+        ${tagsHtml ? `<div class="item-tags">${tagsHtml}</div>` : ''}
+        ${linkHtml}
+      `;
+      card.querySelector('.edit').addEventListener('click', () => openAddPanel(item));
+      armDeleteButton(card.querySelector('.delete'), 'Delete', () => handleDeleteItem(item.id));
+      const copyBtn = card.querySelector('.copy-link-btn');
+      if (copyBtn){
+        copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try {
+            await navigator.clipboard.writeText(item.link);
+            copyBtn.classList.add('copied');
+            copyBtn.title = 'Copied!';
+            setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.title = 'Copy link'; }, 1500);
+          } catch(err){
+            setStatus('Could not copy link — copy it manually.', true);
+          }
+        });
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  /* ===== Master render ===== */
+  function renderAll(){
+    if (view === 'catalogs'){
+      backBtn.style.display = 'none';
+      pageTitle.textContent = 'Catalogs';
+      pageTagline.textContent = 'Every collection, tagged and searchable.';
+      catalogsView.style.display = '';
+      detailView.style.display = 'none';
+      renderCatalogsView();
+    } else {
+      const catalog = catalogs.find(c => c.id === activeCatalogId);
+      backBtn.style.display = 'inline-flex';
+      pageTitle.textContent = catalog ? catalog.name : '';
+      pageTagline.textContent = 'Tag it once, find it a hundred ways.';
+      catalogsView.style.display = 'none';
+      detailView.style.display = '';
+      renderDetailView();
+    }
+  }
+
+  backBtn.addEventListener('click', goToCatalogs);
+
+  searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; renderAll(); });
+
+  toggleAddBtn.addEventListener('click', () => {
+    if (addPanel.classList.contains('open')) closeAddPanel();
+    else openAddPanel(null);
+  });
+  cancelAddBtn.addEventListener('click', closeAddPanel);
+  saveItemBtn.addEventListener('click', handleSaveItem);
+  itemTagSearchInput.addEventListener('input', (e) => {
+    itemTagSearchQuery = e.target.value;
+    renderItemTagSelect();
+  });
+  itemName.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveItem(); });
+
+  filterBtn.addEventListener('click', (e) => { e.stopPropagation(); filterDropdown.classList.toggle('open'); });
+  clearFiltersBtn.addEventListener('click', () => { activeTags.clear(); renderAll(); });
+  document.addEventListener('click', (e) => {
+    if (!filterDropdown.contains(e.target) && !filterBtn.contains(e.target)){
+      filterDropdown.classList.remove('open');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
