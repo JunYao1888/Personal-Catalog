@@ -1334,11 +1334,11 @@ const db = getFirestore(firebaseApp);
   }
 
   async function handleAddTag(){
-    const name = newTagInput.value.trim().toLowerCase();
+    const name = newTagInput.value.trim();
     if (!name) return;
     const cat = getActiveCatalog();
     if (!cat) return;
-    if ((cat.tags || []).includes(name)){
+    if ((cat.tags || []).some(t => t.toLowerCase() === name.toLowerCase())){
       newTagInput.value = '';
       return;
     }
@@ -1527,7 +1527,7 @@ const db = getFirestore(firebaseApp);
       itemName.focus();
       return;
     }
-    const uniqueTags = Array.from(selectedItemTags);
+    const uniqueTags = Array.from(selectedItemTags).sort((a,b)=>a.localeCompare(b));
     const link = normalizeLink(itemLink.value);
 
     setStatus('Saving…');
@@ -1612,7 +1612,7 @@ const db = getFirestore(firebaseApp);
       const label = document.createElement('span');
       label.textContent = 'Filtering by:';
       activeFilterSummary.appendChild(label);
-      activeTags.forEach(t => {
+      Array.from(activeTags).sort((a,b)=>a.localeCompare(b)).forEach(t => {
         const chip = document.createElement('button');
         chip.className = 'tag-chip active';
         chip.textContent = t + ' ✕';
@@ -1652,7 +1652,7 @@ const db = getFirestore(firebaseApp);
     visible.forEach(item => {
       const card = document.createElement('div');
       card.className = 'item-card';
-      const tagsHtml = (item.tags||[]).map(t => `<span class="item-tag">${escapeHtml(t)}</span>`).join('');
+      const tagsHtml = (item.tags||[]).slice().sort((a,b)=>a.localeCompare(b)).map(t => `<span class="item-tag">${escapeHtml(t)}</span>`).join('');
       const linkHtml = item.link ? `
         <div class="item-link-row">
           <a class="item-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(item.link)}">${escapeHtml(item.link.replace(/^https?:\/\//i,''))}</a>
